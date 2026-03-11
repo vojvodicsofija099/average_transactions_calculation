@@ -1,0 +1,363 @@
+{
+  "info": {
+    "_postman_id": "7c3fe0a4-bc7b-4b01-882d-17e3936eea7b",
+    "name": "GO task",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "42613017"
+  },
+  "item": [
+    {
+      "name": "accessToken",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "let response = pm.response.json();",
+              "pm.environment.set(\"ACCESS_TOKEN\", response.access_token);"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Basic <API KEY>",
+            "type": "text"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/x-www-form-urlencoded",
+            "type": "text"
+          },
+          {
+            "key": "basiq-version",
+            "value": "2.1",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "urlencoded",
+          "urlencoded": [
+            {
+              "key": "scope",
+              "value": "SERVER_ACCESS",
+              "type": "text",
+              "uuid": "aa6eb176-4e67-496c-b2a9-57fe418768bc"
+            }
+          ]
+        },
+        "url": {
+          "raw": "https://au-api.basiq.io/token",
+          "protocol": "https",
+          "host": [
+            "au-api",
+            "basiq",
+            "io"
+          ],
+          "path": [
+            "token"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "createUser",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "let response = pm.response.json();",
+              "pm.environment.set(\"USER_ID\", response.id);"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{ACCESS_TOKEN}}",
+            "type": "text"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "type": "text"
+          },
+          {
+            "key": "basiq-version",
+            "value": "2.1",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"test_user_123@test.com\",\n  \"mobile\": \"+61400000000\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "https://au-api.basiq.io/users",
+          "protocol": "https",
+          "host": [
+            "au-api",
+            "basiq",
+            "io"
+          ],
+          "path": [
+            "users"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "createConnection",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "let response = pm.response.json();",
+              "pm.environment.set(\"JOB_ID\", response.id);"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{ACCESS_TOKEN}}",
+            "type": "text"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "type": "text"
+          },
+          {
+            "key": "basiq-version",
+            "value": "2.1",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"loginId\": \"gavinBelson\",\n  \"password\": \"hooli2016\",\n  \"institution\": {\n    \"id\": \"AU00000\"\n  }\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "https://au-api.basiq.io/users/{{USER_ID}}/connections",
+          "protocol": "https",
+          "host": [
+            "au-api",
+            "basiq",
+            "io"
+          ],
+          "path": [
+            "users",
+            "{{USER_ID}}",
+            "connections"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "poolJobStatus",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "let response = pm.response.json();",
+              "pm.environment.set(\"JOB_ID\", response.id);"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{ACCESS_TOKEN}}",
+            "type": "text"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "type": "text"
+          },
+          {
+            "key": "basiq-version",
+            "value": "2.1",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "https://au-api.basiq.io/jobs/{{JOB_ID}}",
+          "protocol": "https",
+          "host": [
+            "au-api",
+            "basiq",
+            "io"
+          ],
+          "path": [
+            "jobs",
+            "{{JOB_ID}}"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "getTransactions",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "let response = pm.response.json();",
+              "pm.environment.set(\"JOB_ID\", response.id);"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{ACCESS_TOKEN}}",
+            "type": "text"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "type": "text"
+          },
+          {
+            "key": "basiq-version",
+            "value": "2.1",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "https://au-api.basiq.io/jobs/{{JOB_ID}}",
+          "protocol": "https",
+          "host": [
+            "au-api",
+            "basiq",
+            "io"
+          ],
+          "path": [
+            "jobs",
+            "{{JOB_ID}}"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "getTransactionsNext",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "let response = pm.response.json();",
+              "pm.environment.set(\"JOB_ID\", response.id);"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{ACCESS_TOKEN}}",
+            "type": "text"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "type": "text"
+          },
+          {
+            "key": "basiq-version",
+            "value": "2.1",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "https://au-api.basiq.io/jobs/{{JOB_ID}}",
+          "protocol": "https",
+          "host": [
+            "au-api",
+            "basiq",
+            "io"
+          ],
+          "path": [
+            "jobs",
+            "{{JOB_ID}}"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "averageSpending",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8080/average-spending",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "average-spending"
+          ]
+        }
+      },
+      "response": []
+    }
+  ]
+}

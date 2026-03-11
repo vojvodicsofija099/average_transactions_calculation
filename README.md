@@ -130,3 +130,26 @@ This improves performance and reduces latency when communicating with the Basiq 
 - Transactions are retrieved using pagination until all pages are processed.
 - Only **debit transactions (negative amounts)** are considered spending.
 - The HTTP client is reused to allow connection pooling.
+
+# Postman collection
+
+A Postman collection for testing the API is included in this repository.
+
+Location:
+
+postman/go-task.postman_collection.json
+
+You can import this collection into Postman and run the requests step by step to:
+
+1. Obtain an access token
+2. Create a sandbox user
+3. Create a bank connection
+4. Poll the job status until the connection is completed
+5. Retrieve transactions
+6. Call the application endpoint
+
+Example endpoint:
+
+GET http://localhost:8080/average-spending
+
+This collection demonstrates both direct Basiq API calls and the final application endpoint.
