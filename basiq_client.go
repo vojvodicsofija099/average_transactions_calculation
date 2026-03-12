@@ -152,8 +152,17 @@ func (c *BasiqClient) waitForJobSuccess(jobID string) (*JobResponse, error) {
 func (c *BasiqClient) getTransactions(userID string) ([]Transaction, error) {
 	transactionsURL := fmt.Sprintf("%s/users/%s/transactions", c.BaseURL, userID)
 
+	reqURL, err := url.Parse(transactionsURL)
+	if err != nil {
+		return nil, fmt.Errorf("cannot parse transactions url: %w", err)
+	}
+
+	query := reqURL.Query()
+	query.Set("filter", "transaction.direction.eq('debit')")
+	reqURL.RawQuery = query.Encode()
+
 	var allTransactions []Transaction
-	nextURL := transactionsURL
+	nextURL := reqURL.String()
 
 	for nextURL != "" {
 		req, err := c.newGETRequest(nextURL)
