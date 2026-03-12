@@ -199,7 +199,7 @@ func calculateAveragesPerCategory(transactions []Transaction) map[string]float64
 			continue
 		}
 
-		// ignore income, calculate only spending
+		// defensive check; API is already filtered to debit transactions
 		if amount >= 0 {
 			continue
 		}
@@ -234,11 +234,10 @@ func allStepsSuccessful(steps []JobStep) bool {
 
 func anyStepFailing(steps []JobStep) bool {
 	for _, step := range steps {
-		if step.Status == "failed" || step.Status == "error" {
+		if step.Status == "failed" {
 			return true
 		}
 	}
-
 	return false
 }
 
@@ -297,7 +296,7 @@ func doJSONRequest(client *http.Client, req *http.Request, result interface{}) e
 		if err != nil {
 			lastErr = fmt.Errorf("request sending unsuccessful: %w", err)
 
-			if attempt < maxAttempts && shouldRetry(0, err) {
+			if attempt < maxAttempts && isRetryableMethod(req) && shouldRetry(0, err) {
 				time.Sleep(time.Duration(attempt) * 500 * time.Millisecond)
 				continue
 			}
@@ -314,7 +313,7 @@ func doJSONRequest(client *http.Client, req *http.Request, result interface{}) e
 		if resp.StatusCode < 200 || resp.StatusCode >= 300 {
 			lastErr = fmt.Errorf("unexpected response status code: %d: %s", resp.StatusCode, string(body))
 
-			if attempt < maxAttempts && shouldRetry(resp.StatusCode, nil) {
+			if attempt < maxAttempts && isRetryableMethod(req) && shouldRetry(resp.StatusCode, nil) {
 				time.Sleep(time.Duration(attempt) * 500 * time.Millisecond)
 				continue
 			}
@@ -346,4 +345,8 @@ func shouldRetry(statusCode int, err error) bool {
 	}
 
 	return false
+}
+
+func isRetryableMethod(req *http.Request) bool {
+	return req.Method == http.MethodGet
 }
