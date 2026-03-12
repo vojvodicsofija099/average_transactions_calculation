@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"math"
 	"os"
 	"time"
 )
@@ -54,22 +53,5 @@ func runAnalysis() ([]CategoryAverage, error) {
 	}
 
 	averages := calculateAveragesPerCategory(transactions)
-	titles := map[string]string{}
-
-	for _, t := range transactions {
-		if t.SubClass != nil {
-			titles[t.SubClass.Code] = t.SubClass.Title
-		}
-	}
-
-	var result []CategoryAverage
-	for categoryCode, avg := range averages {
-		result = append(result, CategoryAverage{
-			Code:    categoryCode,
-			Title:   titles[categoryCode],
-			Average: math.Abs(avg),
-		})
-	}
-
-	return result, nil
+	return averages, nil
 }

@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"math"
 	"net/http"
 	"net/url"
 	"strconv"
@@ -12,10 +13,13 @@ import (
 )
 
 const (
-	baseURL    = "https://au-api.basiq.io"
-	tokenPath  = "/token"
-	usersPath  = "/users"
-	apiVersion = "2.1"
+	baseURL          = "https://au-api.basiq.io"
+	tokenPath        = "/token"
+	usersPath        = "/users"
+	connectionsPath  = "/connections"
+	jobsPath         = "/jobs"
+	transactionsPath = "/transactions"
+	apiVersion       = "2.1"
 )
 
 var httpClient = &http.Client{
@@ -97,7 +101,7 @@ func (c *BasiqClient) createUser(request CreateUserRequest) (*UserResponse, erro
 }
 
 func (c *BasiqClient) createConnection(userID string, request CreateConnectionRequest) (*ConnectionResponse, error) {
-	connectionURL := fmt.Sprintf("%s/users/%s/connections", c.BaseURL, userID)
+	connectionURL := c.BaseURL + usersPath + "/" + userID + connectionsPath
 
 	req, err := c.newJSONRequest(http.MethodPost, connectionURL, request)
 	if err != nil {
@@ -113,7 +117,7 @@ func (c *BasiqClient) createConnection(userID string, request CreateConnectionRe
 }
 
 func (c *BasiqClient) getJob(jobID string) (*JobResponse, error) {
-	jobURL := fmt.Sprintf("%s/jobs/%s", c.BaseURL, jobID)
+	jobURL := c.BaseURL + jobsPath + "/" + jobID
 
 	req, err := c.newGETRequest(jobURL)
 	if err != nil {
@@ -150,7 +154,7 @@ func (c *BasiqClient) waitForJobSuccess(jobID string) (*JobResponse, error) {
 }
 
 func (c *BasiqClient) getTransactions(userID string) ([]Transaction, error) {
-	transactionsURL := fmt.Sprintf("%s/users/%s/transactions", c.BaseURL, userID)
+	transactionsURL := c.BaseURL + usersPath + "/" + userID + transactionsPath
 
 	reqURL, err := url.Parse(transactionsURL)
 	if err != nil {
@@ -165,6 +169,8 @@ func (c *BasiqClient) getTransactions(userID string) ([]Transaction, error) {
 	nextURL := reqURL.String()
 
 	for nextURL != "" {
+		fmt.Println("Next URL:", nextURL)
+
 		req, err := c.newGETRequest(nextURL)
 		if err != nil {
 			return nil, fmt.Errorf("cannot create transactions request: %w", err)
@@ -185,9 +191,10 @@ func (c *BasiqClient) getTransactions(userID string) ([]Transaction, error) {
 	return allTransactions, nil
 }
 
-func calculateAveragesPerCategory(transactions []Transaction) map[string]float64 {
+func calculateAveragesPerCategory(transactions []Transaction) []CategoryAverage {
 	sum := make(map[string]float64)
 	count := make(map[string]int)
+	titles := make(map[string]string)
 
 	for _, t := range transactions {
 		if t.SubClass == nil {
@@ -199,23 +206,28 @@ func calculateAveragesPerCategory(transactions []Transaction) map[string]float64
 			continue
 		}
 
-		// defensive check; API is already filtered to debit transactions
 		if amount >= 0 {
 			continue
 		}
 
-		category := t.SubClass.Code
-		sum[category] += amount
-		count[category]++
+		code := t.SubClass.Code
+
+		sum[code] += amount
+		count[code]++
+		titles[code] = t.SubClass.Title
 	}
 
-	avg := make(map[string]float64)
+	var result []CategoryAverage
 
-	for category, total := range sum {
-		avg[category] = total / float64(count[category])
+	for code, total := range sum {
+		result = append(result, CategoryAverage{
+			Code:    code,
+			Title:   titles[code],
+			Average: math.Abs(total / float64(count[code])),
+		})
 	}
 
-	return avg
+	return result
 }
 
 func allStepsSuccessful(steps []JobStep) bool {
@@ -335,11 +347,11 @@ func shouldRetry(statusCode int, err error) bool {
 	if err != nil {
 		return true
 	}
-
+	//429
 	if statusCode == http.StatusTooManyRequests {
 		return true
 	}
-
+	//500
 	if statusCode >= 500 && statusCode <= 599 {
 		return true
 	}
